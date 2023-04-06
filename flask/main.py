@@ -2,30 +2,27 @@ from flask import Flask, render_template, request, redirect, url_for, make_respo
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, Form, SelectField, SubmitField, BooleanField, FieldList, FormField, TimeField, RadioField
 from wtforms.widgets import TextArea
+from math import ceil
+import os
+from forms import ContactForm
+from dotenv import load_dotenv
 
 try:
 	# for internal server
 	from urlparse import urlparse, urljoin
 except:
-	# for heroku push:
+	# for heroku hosting:
 	from urllib.parse import urlparse, urljoin
-
-# from urlparse import urlparse, urljoin
-
-import functools
-
-from math import ceil
-import random
-import json
-import os
-import datetime
-
-from forms import ContactForm
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.urandom(24)
 
+# Load the environment variables from the .env file
+load_dotenv()
+
+# Get the value of the GOOGLE_VERIFICATION_TOKEN variable
+google_verification_token = os.getenv("GOOGLE_VERIFICATION_TOKEN")
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -75,20 +72,15 @@ def resume():
 def portfolio():
     return redirect('/#portfolio')
 
-@app.route('/google1ec94f20b076cf81.html')
+@app.route('/google'+google_verification_token+'.html')
 def google_site_verification():
     return render_template('google_site_verification.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
 	return redirect("/#contact")
-    # form = ContactForm()
-    # if request.method == 'POST':
-    #     if form.validate():
-    #         print('hey')
-    #         return render_template('contact.html', post = 'yup', form = form)
-    # elif request.method == 'GET':
-    #     return render_template('contact.html', form = form)
+
+# web scraping to get most recent track & field times
 
 from bs4 import BeautifulSoup
 import requests
@@ -183,10 +175,6 @@ def athletics():
 			temp = float(str(''.join([c for c in item[2] if c in '1234567890.'])))
 			if(float(temp)<60*personal_record["min"]+personal_record["sec"]):
 				personal_record = {"min":0,"sec":float(''.join([c for c in str(item[2]) if c in '1234567890.']))}
-
-	# print(data)
-	# cross country
-	# events.append({"id":"800","name":"800","time":"2:20.36","date":"05/18/2019","meet":"NCS Meet Of Champions"})
 	print(events)
 	events.append({'name': u'Shot Put - 4kg', 'id': u'Shot Put - 4kg'})
 	if events.index({'name': u'Shot Put - 4kg', 'id': u'Shot Put - 4kg'}):
@@ -203,9 +191,6 @@ def athletics():
 		else:
 			this_event["meet"] = "<a href='https://www.athletic.net/TrackAndField/Athlete.aspx?AID=12719238'>DETAILS</a>"
 	return render_template('athletics.html', events = events)
-
-
-
 
 @app.route('/chem-project')
 def chem_project():
@@ -235,9 +220,6 @@ def baking_club():
 def diatribe_college_day():
     return redirect("http://diatribe.org/college")
 
-
-
-
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
     """Generate sitemap.xml """
@@ -255,10 +237,9 @@ def sitemap():
     return render_template('sitemap_template.xml', pages=pages)
 
 
-
+# To speed up loading
 app.jinja_env.cache = {}
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+	app.run(debug=False)
