@@ -5,7 +5,7 @@ from wtforms.widgets import TextArea
 from math import ceil
 import os
 from forms import ContactForm
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 try:
 	# for internal server
@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 # Load the environment variables from the .env file
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # Get the value of the GOOGLE_VERIFICATION_TOKEN variable
 google_verification_token = os.getenv("GOOGLE_VERIFICATION_TOKEN")
