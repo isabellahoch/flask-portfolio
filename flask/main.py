@@ -56,10 +56,6 @@ def index():
 	elif request.method == 'GET':
 		return render_template('index.html', info = info, form = form)
 
-@app.route('/sofia')
-def sofia():
-    return render_template('sofia.html')
-
 @app.route('/about')
 def about():
     return redirect('/#about')
